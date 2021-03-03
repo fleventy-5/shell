@@ -16,12 +16,17 @@ char **get_input(char *input){
 	while(parsed!=NULL){
 		command[index] = parsed;
 		index++;
-
+				
 		parsed = strtok(NULL,seperator);
 	}
 
 	command[index] = NULL;
 	return command;
+}
+
+
+int cd(char *path){
+	return chdir(path);
 }
 
 
@@ -41,13 +46,21 @@ int main(){
 	}
 
 	while(1){
-		input = readline("ksh$");
+		input = readline("ksh>$");
 		command = get_input(input);
-
+		
+		if(strcmp(command[0],"cd")==0){
+			if(cd(command[1])<0){
+				perror(command[1]);
+			}
+			continue;
+		}
+		
 		child_pid  = fork();
-		if(child_pid ==0){
+		if(child_pid == 0){
 			execvp(command[0],command);
 			printf("Command does not exist\n");
+			
 		} else {
 			waitpid(child_pid, &stat_loc, WUNTRACED);
 		}
